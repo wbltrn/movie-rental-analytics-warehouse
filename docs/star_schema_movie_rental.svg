@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="100%" height="100%" fill="white"/>
+  <text x="800.0" y="80" font-family="DejaVu Sans, Arial, sans-serif" font-size="42" font-weight="700" text-anchor="middle">
+    Star Schema — Movie Rental Analytics Warehouse
+  </text>
+
+  <defs>
+    <style>
+      .box { fill: #f8fafc; stroke: black; stroke-width: 3; rx: 20; ry: 20; }
+      .t1 { font-family: DejaVu Sans, Arial, sans-serif; font-size: 28px; font-weight: 700; text-anchor: middle; }
+      .t2 { font-family: DejaVu Sans, Arial, sans-serif; font-size: 22px; fill: #374151; text-anchor: middle; }
+      .line { stroke: black; stroke-width: 4; }
+    </style>
+  </defs>
+
+  <line class="line" x1="800" y1="335" x2="800" y2="250"/>
+  <line class="line" x1="620" y1="435" x2="450" y2="420"/>
+  <line class="line" x1="980" y1="435" x2="1150" y2="420"/>
+  <line class="line" x1="675" y1="535" x2="550" y2="650"/>
+  <line class="line" x1="925" y1="535" x2="1050" y2="650"/>
+
+  <rect class="box" x="620" y="335" width="360" height="200"/>
+  <text class="t1" x="800" y="390">fact_rental_payment</text>
+  <text class="t2" x="800" y="445">Measures: payment_amount, rental_days,</text>
+  <text class="t2" x="800" y="475">days_late, is_late</text>
+
+  <rect class="box" x="645" y="130" width="310" height="120"/>
+  <text class="t1" x="800" y="185">dim_date</text>
+  <text class="t2" x="800" y="225">date_key</text>
+
+  <rect class="box" x="140" y="360" width="310" height="120"/>
+  <text class="t1" x="295" y="415">dim_customer</text>
+  <text class="t2" x="295" y="455">customer_key</text>
+
+  <rect class="box" x="1150" y="360" width="310" height="120"/>
+  <text class="t1" x="1305" y="415">dim_film</text>
+  <text class="t2" x="1305" y="455">film_key</text>
+
+  <rect class="box" x="260" y="650" width="310" height="120"/>
+  <text class="t1" x="415" y="705">dim_store</text>
+  <text class="t2" x="415" y="745">store_key</text>
+
+  <rect class="box" x="1030" y="650" width="310" height="120"/>
+  <text class="t1" x="1185" y="705">dim_staff</text>
+  <text class="t2" x="1185" y="745">staff_key</text>
+
+  <text class="t2" x="800.0" y="840">Fact grain: one row per payment associated with a rental</text>
+</svg>
