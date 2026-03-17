@@ -71,6 +71,7 @@ Examples include:
 
 ## Repository Structure
 
+```
 movie-rental-analytics-warehouse
 │
 ├── data
@@ -79,8 +80,7 @@ movie-rental-analytics-warehouse
 │   └── README.md
 │
 ├── docs
-│   ├── star_schema_movie_rental.svg
-│   └── README.md
+│   └── star_schema_movie_rental.svg
 │
 ├── sql
 │   ├── analytical_queries.sql
@@ -92,8 +92,8 @@ movie-rental-analytics-warehouse
 │   ├── extract.py
 │   ├── transform.py
 │   ├── load.py
-│   ├── etl_pipeline.py
-│   └── README.md
+│   └── etl_pipeline.py
 │
 ├── LICENSE
 └── README.md
+```
