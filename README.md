@@ -80,7 +80,8 @@ movie-rental-analytics-warehouse
 │   └── README.md
 │
 ├── docs
-│   └── star_schema_movie_rental.svg
+│   ├── star_schema_movie_rental.svg
+│   └── README.md
 │
 ├── sql
 │   ├── analytical_queries.sql
@@ -92,7 +93,8 @@ movie-rental-analytics-warehouse
 │   ├── extract.py
 │   ├── transform.py
 │   ├── load.py
-│   └── etl_pipeline.py
+│   ├── etl_pipeline.py
+│   └── README.md
 │
 ├── LICENSE
 └── README.md
