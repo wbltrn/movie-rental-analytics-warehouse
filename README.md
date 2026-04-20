@@ -99,3 +99,100 @@ movie-rental-analytics-warehouse
 ├── LICENSE
 └── README.md
 ```
+---
+
+## Capstone Extension: Multi-Source Lakehouse Pipeline
+
+This project has been extended from a traditional batch ETL data warehouse into a multi-source, streaming-enabled data pipeline.
+
+The goal of the capstone is to demonstrate how data from multiple platforms can be integrated into a single analytical system using business keys and modern data engineering practices.
+
+### Updated Architecture
+
+The pipeline now incorporates multiple data sources and a streaming workflow:
+
+**Data Sources:**
+- MySQL (Sakila) — core transactional and dimension data
+- MongoDB — semi-structured customer loyalty data (JSON-based)
+- CSV Files — external/reference data exported from MySQL
+- JSON Files — streaming simulation for fact table data
+
+**Processing Framework:**
+- Databricks / Apache Spark
+- Structured Streaming (AutoLoader)
+- Delta Lake (Bronze, Silver, Gold layers)
+
+**Updated Workflow:**
+
+MySQL / MongoDB / CSV / JSON  
+→ Bronze (raw ingestion)  
+→ Silver (cleaned + transformed data)  
+→ Gold (analytics-ready tables)  
+
+---
+
+### Dimensional Model (Extended)
+
+**Fact Table:**
+- `fact_rental_payment` — streaming ingestion of rental transactions
+
+**Dimension Tables:**
+- `dim_date` — date dimension
+- `dim_customer` — customer data (MySQL)
+- `dim_film` — film metadata (MySQL)
+- `dim_customer_loyalty` — customer loyalty data (MongoDB)
+- `dim_[CSV dimension]` — additional dimension from CSV
+
+---
+
+### Cross-Source Integration
+
+All data sources are integrated using shared business keys:
+
+- `customer_id` links:
+  - fact_rental_payment
+  - dim_customer
+  - dim_customer_loyalty (MongoDB)
+
+- `film_id` links:
+  - fact_rental_payment
+  - dim_film
+  - CSV-based dimension
+
+- `date_key` links:
+  - fact_rental_payment
+  - dim_date
+
+This ensures that all datasets "talk to each other" and represent a single cohesive business process.
+
+---
+
+### Streaming Pipeline (New)
+
+The fact table is no longer loaded in batch form.
+
+Instead:
+- Rental/payment data is exported into multiple JSON files
+- These files simulate real-time incoming data
+- Spark Structured Streaming ingests this data into:
+
+**Bronze Layer:**
+- Raw JSON ingestion
+
+**Silver Layer:**
+- Data cleaning and transformation
+- Derived fields (rental_days, days_late, is_late)
+
+**Gold Layer:**
+- Final fact table joined with all dimensions
+- Analytics-ready dataset
+
+---
+
+### Project Goal (Capstone)
+
+This extended pipeline demonstrates:
+- Integration of structured and semi-structured data
+- Use of multiple storage systems (MySQL, MongoDB, file-based)
+- Real-time/streaming data processing
+- Transition from traditional ETL to modern lakehouse architecture
