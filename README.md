@@ -1,80 +1,164 @@
-# Movie Rental Analytics Data Warehouse
+# Movie Rental Analytics Warehouse
 
-This project builds a data warehouse and ETL pipeline using the **Sakila movie rental database**.  
-The goal is to transform transactional (OLTP) data into an analytical star schema that supports business intelligence queries.
+This project extends a midterm movie rental data warehouse into a multi-source lakehouse pipeline using Databricks, Delta tables, and medallion architecture.
 
-The ETL pipeline extracts data from the Sakila database, transforms it into dimension and fact tables, and loads it into a data warehouse for analytics.
+The project uses the Sakila movie rental database as its core business process and integrates multiple data sources that connect through shared business keys. The final pipeline demonstrates Bronze, Silver, and Gold data layers for analytics-ready reporting.
 
+---
+
+## Project Goal
+
+The goal of this project is to transform transactional movie rental and payment data into a structured analytical pipeline that supports business intelligence and category-level revenue analysis.
+
+This capstone extends the original batch ETL warehouse by incorporating:
+
+- Databricks
+- Delta Lake tables
+- Medallion Architecture (Bronze, Silver, Gold)
+- JSON fact ingestion
+- CSV dimension ingestion
+- MongoDB-based customer enrichment
+
+---
+
+## Business Process
+
+The business process modeled in this project is movie rental payment activity.
+
+The primary fact data tracks rental and payment transactions, while dimension data enriches those transactions with category and customer-related information.
+
+---
+
+## Data Sources
+
+This project integrates multiple data sources into one analytical workflow.
+
+### 1. MySQL (Sakila)
+The Sakila relational database serves as the main operational source system.
+
+Used for:
+- rental and payment transaction extraction
+- film-related reference data
+- generation of exported dimension files
+
+### 2. JSON Files
+Fact rental payment data was exported into multiple JSON files to simulate incoming streaming-style transaction batches.
+
+Files created:
+- `fact_rental_payment_part1.json`
+- `fact_rental_payment_part2.json`
+- `fact_rental_payment_part3.json`
+
+These files were uploaded to a Unity Catalog volume in Databricks and used as the Bronze ingestion source.
+
+### 3. CSV File
+Category data was exported from Sakila into CSV format.
+
+File created:
+- `dim_category.csv`
+
+This file was used as a file-based reference dimension in Databricks.
+
+### 4. MongoDB Atlas
+Customer loyalty data was generated from Sakila customer records, exported as JSON, and loaded into MongoDB Atlas.
+
+File created:
+- `dim_customer_loyalty.json`
+
+This MongoDB collection represents a semi-structured enrichment source intended to connect to customer-level analytics through `customer_id`.
+
+---
 
 ## Architecture
 
-Source System:
-- MySQL Sakila Database (OLTP)
+### Original Midterm Architecture
+Sakila Database → Python ETL → MySQL Star Schema Warehouse
 
-ETL Pipeline:
-- Python scripts for extraction, transformation, and loading
+### Capstone Architecture
+JSON / CSV / MySQL / MongoDB  
+→ Databricks Ingestion  
+→ Bronze Delta Tables  
+→ Silver Delta Tables  
+→ Gold Delta Tables  
+→ Business Insights
 
-Data Warehouse:
-- MySQL star schema
+---
 
-Workflow:
+## Medallion Architecture
 
-Sakila Database → Extract → Transform → Load → Movie Rental Data Warehouse
+### Bronze Layer
+Raw rental payment JSON files were ingested from a Unity Catalog volume and stored as a Delta table:
 
+- `fact_rental_payment_bronze`
 
-## Data Warehouse Schema
+This layer preserves the raw structure of the ingested transaction data.
 
-The warehouse follows a **star schema** design.
+### Silver Layer
+The Bronze data was cleaned and transformed into a Silver Delta table:
 
-Fact Table:
-- `fact_rental_payment` — records rental transactions and payments
+- `fact_rental_payment_silver`
 
-Dimension Tables:
-- `dim_customer` — customer information
-- `dim_film` — film metadata
-- `dim_store` — store location details
-- `dim_staff` — staff members handling rentals
+Transformations included:
+- schema enforcement
+- timestamp conversion
+- numeric type casting
 
+### Gold Layer
+The Silver table was aggregated into Gold analytics tables:
 
-## ETL Pipeline
+- `fact_rental_payment_gold`
+- `fact_rental_payment_gold_final`
 
-The ETL process is implemented in Python.
+The final Gold layer joined fact data with category information using `film_id` and calculated daily revenue by category.
 
-Scripts:
+---
 
-- `extract.py`  
-  Connects to the Sakila database and retrieves raw transactional tables.
+## Tables Created
 
-- `transform.py`  
-  Cleans and transforms data into dimension and fact tables.
+### Bronze
+- `fact_rental_payment_bronze`
 
-- `load.py`  
-  Loads the transformed tables into the data warehouse.
+### Silver
+- `fact_rental_payment_silver`
 
-- `etl_pipeline.py`  
-  Runs the full ETL process.
+### Gold
+- `fact_rental_payment_gold`
+- `fact_rental_payment_gold_final`
 
+### Dimension
+- `dim_category`
 
-## Analytical Queries
+---
 
-SQL queries for business analytics are included in:
+## Final Analytical Output
 
-sql/analytical_queries.sql
+The final Gold dataset provides daily revenue by film category.
 
-Examples include:
+Example columns:
+- `payment_day`
+- `category_name`
+- `total_revenue`
 
-- Total revenue analysis
-- Revenue by store location
-- Top performing films
-- Late rental analysis by country
+This enables business questions such as:
+- Which film categories generate the most revenue?
+- How does category revenue change over time?
+- Which categories perform best on specific days?
 
+---
 
 ## Repository Structure
 
-```
+```text
 movie-rental-analytics-warehouse
 │
 ├── data
+│   ├── exports
+│   │   ├── dim_category.csv
+│   │   └── dim_customer_loyalty.json
+│   ├── streaming_input
+│   │   ├── fact_rental_payment_part1.json
+│   │   ├── fact_rental_payment_part2.json
+│   │   └── fact_rental_payment_part3.json
 │   ├── sakila-data.sql
 │   ├── sakila-schema.sql
 │   └── README.md
@@ -90,109 +174,14 @@ movie-rental-analytics-warehouse
 │   └── README.md
 │
 ├── src
-│   ├── extract.py
-│   ├── transform.py
-│   ├── load.py
+│   ├── create_category_csv.py
+│   ├── create_customer_loyalty.py
+│   ├── create_streaming_fact_json.py
 │   ├── etl_pipeline.py
+│   ├── extract.py
+│   ├── load.py
+│   ├── transform.py
 │   └── README.md
 │
 ├── LICENSE
 └── README.md
-```
----
-
-## Capstone Extension: Multi-Source Lakehouse Pipeline
-
-This project has been extended from a traditional batch ETL data warehouse into a multi-source, streaming-enabled data pipeline.
-
-The goal of the capstone is to demonstrate how data from multiple platforms can be integrated into a single analytical system using business keys and modern data engineering practices.
-
-### Updated Architecture
-
-The pipeline now incorporates multiple data sources and a streaming workflow:
-
-**Data Sources:**
-- MySQL (Sakila) — core transactional and dimension data
-- MongoDB — semi-structured customer loyalty data (JSON-based)
-- CSV Files — external/reference data exported from MySQL
-- JSON Files — streaming simulation for fact table data
-
-**Processing Framework:**
-- Databricks / Apache Spark
-- Structured Streaming (AutoLoader)
-- Delta Lake (Bronze, Silver, Gold layers)
-
-**Updated Workflow:**
-
-MySQL / MongoDB / CSV / JSON  
-→ Bronze (raw ingestion)  
-→ Silver (cleaned + transformed data)  
-→ Gold (analytics-ready tables)  
-
----
-
-### Dimensional Model (Extended)
-
-**Fact Table:**
-- `fact_rental_payment` — streaming ingestion of rental transactions
-
-**Dimension Tables:**
-- `dim_date` — date dimension
-- `dim_customer` — customer data (MySQL)
-- `dim_film` — film metadata (MySQL)
-- `dim_customer_loyalty` — customer loyalty data (MongoDB)
-- `dim_[CSV dimension]` — additional dimension from CSV
-
----
-
-### Cross-Source Integration
-
-All data sources are integrated using shared business keys:
-
-- `customer_id` links:
-  - fact_rental_payment
-  - dim_customer
-  - dim_customer_loyalty (MongoDB)
-
-- `film_id` links:
-  - fact_rental_payment
-  - dim_film
-  - CSV-based dimension
-
-- `date_key` links:
-  - fact_rental_payment
-  - dim_date
-
-This ensures that all datasets "talk to each other" and represent a single cohesive business process.
-
----
-
-### Streaming Pipeline (New)
-
-The fact table is no longer loaded in batch form.
-
-Instead:
-- Rental/payment data is exported into multiple JSON files
-- These files simulate real-time incoming data
-- Spark Structured Streaming ingests this data into:
-
-**Bronze Layer:**
-- Raw JSON ingestion
-
-**Silver Layer:**
-- Data cleaning and transformation
-- Derived fields (rental_days, days_late, is_late)
-
-**Gold Layer:**
-- Final fact table joined with all dimensions
-- Analytics-ready dataset
-
----
-
-### Project Goal (Capstone)
-
-This extended pipeline demonstrates:
-- Integration of structured and semi-structured data
-- Use of multiple storage systems (MySQL, MongoDB, file-based)
-- Real-time/streaming data processing
-- Transition from traditional ETL to modern lakehouse architecture
